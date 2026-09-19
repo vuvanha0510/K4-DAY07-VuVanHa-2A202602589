@@ -13,7 +13,17 @@ Không yêu cầu toán học — hãy giải thích về mặt khái niệm:
 - Đưa ra một ví dụ cụ thể về hai câu sẽ có độ tương tự CAO và hai câu sẽ có độ tương tự THẤP.
 - Tại sao độ tương tự cosine lại được ưu tiên hơn khoảng cách Euclid (Euclidean distance) đối với text embeddings?
 
-> **Ghi kết quả vào:** Báo cáo — Phần 1 (Khởi động)
+> **Ghi kết quả vào:** Báo cáo — Phần 1 (Khởi động) -1. Ý nghĩa khái niệm: Khi hai đoạn văn bản có độ tương tự cosine cao (tiến gần về 1), điều đó có nghĩa là nội dung, ý nghĩa hoặc chủ đề của chúng rất giống nhau, dù chúng có thể dùng các từ ngữ khác nhau đôi chút. Bản chất vector: Trong không gian nhiều chiều của AI, mỗi đoạn văn bản được biểu diễn bằng một vector. Góc tạo bởi hai vector này rất nhỏ (hướng về cùng một phía). Điều này phản ánh việc hai đoạn văn bản cùng chia sẻ một ngữ nghĩa cốt lõi hoặc đang nói về cùng một vấn đề
+
+>-2. Ví dụ: Cặp câu có độ tương tự CAO:
+>Câu A: "Trí tuệ nhân tạo đang thay đổi cách chúng ta làm việc."Câu B: "Công nghệ AI đang cách mạng hóa phương thức lao động của con người." Giải thích: Hai câu này dùng từ ngữ khác nhau (AI vs. Trí tuệ nhân tạo, làm việc vs. lao động) nhưng có chung một ý nghĩa nền tảng, do đó góc giữa hai vector rất nhỏ và độ tương tự rất cao
+
+>Cặp câu có độ tương tự THẤP:
+>Câu A: "Hôm nay thời tiết Hà Nội rất đẹp và có nắng."Câu B: "Thuật toán sắp xếp nhanh (Quicksort) có độ phức tạp trung bình là $O(N \log N)$."Giải thích: Hai câu này thuộc hai lĩnh vực hoàn toàn khác nhau (thời tiết và khoa học máy tính/lập trình), hướng đi của vector trong không gian số hoàn toàn lệch hướng, dẫn đến độ tương tự cosine thấp (tiến gần về 0 hoặc âm).
+
+>3. Độ tương tự cosine được ưu tiên hơn khoảng cách euclid vì: 
+>Khắc phục vấn đề độ dài văn bản: Khoảng cách Euclid (Euclidean distance) tính độ dài đường thẳng nối hai điểm. Nếu một đoạn văn rất dài, nó chứa nhiều từ hơn, khiến tọa độ vector bị kéo dài ra xa gốc tọa độ (magnitude lớn), dù nội dung của nó hoàn toàn tương đồng với một đoạn văn ngắn. Khoảng cách Euclid sẽ cho kết quả xa nhau (sai lệch).
+>Cosine chỉ quan tâm đến "Góc" (Hướng): Độ tương tự cosine chỉ đo góc giữa hai vector mà không quan tâm đến độ dài của chúng. Điều này cực kỳ hoàn hảo cho xử lý văn bản vì nó giúp so sánh chính xác ý nghĩa ngữ nghĩa (semantic) của hai đoạn văn ngay cả khi một bên viết dài dòng, giải thích ý nhiều hơn, còn một bên viết ngắn gọn, cô đọng.
 
 ---
 
@@ -23,7 +33,8 @@ Không yêu cầu toán học — hãy giải thích về mặt khái niệm:
 - Công thức: `số lượng chunk = làm_tròn_lên((độ_dài_tài_liệu - độ_chồng_chéo) / (kích_thước_chunk - độ_chồng_chéo))`
 - Nếu độ chồng chéo (overlap) tăng lên 100, số lượng chunk sẽ thay đổi như thế nào? Tại sao bạn lại muốn tăng độ chồng chéo?
 
-> **Ghi kết quả vào:** Báo cáo — Phần 1 (Khởi động)
+> **Ghi kết quả vào:** Báo cáo — Phần 1 (Khởi động) -Dự kiến sẽ có 23 chunks. Nếu độ chồng chéo tăng lên 100 thì số lương chunks tăng lên 25
+>-Muốn tăng độ chồng chéo để: Bảo toàn ngữ cảnh (Context preservation): Khi một câu hoặc một ý quan trọng nằm ngắt quãng ngay ranh giới giữa hai chunk, việc tăng overlap giúp giữ lại phần đuôi của chunk trước ở phần đầu của chunk sau. Nhờ đó, mô hình Embedding không bị mất bối cảnh (context) khi đoạn văn bản bị cắt cụt. Tăng độ chính xác khi truy xuất (Retrieval accuracy): Giúp các câu hỏi tìm kiếm dễ dàng khớp (match) được thông tin nằm rải rác ở phần giao nhau giữa các khối dữ liệu.
 
 ---
 
@@ -36,17 +47,17 @@ Chạy `pytest tests/` để kiểm tra tiến độ.
 ### Danh sách cần làm (Checklist)
 - [x] `Document` dataclass — ĐÃ TRIỂN KHAI SẴN
 - [x] `FixedSizeChunker` — ĐÃ TRIỂN KHAI SẴN
-- [ ] `SentenceChunker` — tách dựa trên ranh giới câu, nhóm lại thành các chunks
-- [ ] `RecursiveChunker` — thử nghiệm các dấu phân cách (separators) theo thứ tự, thực hiện đệ quy trên các đoạn có kích thước quá lớn
-- [ ] `compute_similarity` — công thức tính độ tương tự cosine kèm cơ chế bảo vệ chia cho 0
-- [ ] `ChunkingStrategyComparator` — gọi cả ba chiến lược, tính toán các chỉ số thống kê
-- [ ] `EmbeddingStore.__init__` — khởi tạo store (lưu trữ trong bộ nhớ hoặc ChromaDB)
-- [ ] `EmbeddingStore.add_documents` — nhúng (embed) và lưu trữ từng tài liệu
-- [ ] `EmbeddingStore.search` — nhúng truy vấn, xếp hạng theo tích vô hướng (dot product)
-- [ ] `EmbeddingStore.get_collection_size` — trả về số lượng
-- [ ] `EmbeddingStore.search_with_filter` — lọc theo siêu dữ liệu (metadata), sau đó tìm kiếm
-- [ ] `EmbeddingStore.delete_document` — xóa tất cả các chunks của một doc_id
-- [ ] `KnowledgeBaseAgent.answer` — truy xuất (retrieve) + tạo prompt + gọi LLM
+- [X] `SentenceChunker` — tách dựa trên ranh giới câu, nhóm lại thành các chunks
+- [X] `RecursiveChunker` — thử nghiệm các dấu phân cách (separators) theo thứ tự, thực hiện đệ quy trên các đoạn có kích thước quá lớn
+- [X] `compute_similarity` — công thức tính độ tương tự cosine kèm cơ chế bảo vệ chia cho 0
+- [X] `ChunkingStrategyComparator` — gọi cả ba chiến lược, tính toán các chỉ số thống kê
+- [X] `EmbeddingStore.__init__` — khởi tạo store (lưu trữ trong bộ nhớ hoặc ChromaDB)
+- [X] `EmbeddingStore.add_documents` — nhúng (embed) và lưu trữ từng tài liệu
+- [X] `EmbeddingStore.search` — nhúng truy vấn, xếp hạng theo tích vô hướng (dot product)
+- [X] `EmbeddingStore.get_collection_size` — trả về số lượng
+- [X] `EmbeddingStore.search_with_filter` — lọc theo siêu dữ liệu (metadata), sau đó tìm kiếm
+- [X] `EmbeddingStore.delete_document` — xóa tất cả các chunks của một doc_id
+- [X] `KnowledgeBaseAgent.answer` — truy xuất (retrieve) + tạo prompt + gọi LLM
 
 > **Nộp code:** thư mục `src/`
 > **Ghi lại hướng tiếp cận vào:** Báo cáo — Phần 4 (Hướng tiếp cận của tôi)
