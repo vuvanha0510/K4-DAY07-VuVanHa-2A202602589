@@ -32,21 +32,21 @@ Nguồn chính thức công khai, lấy ngày 2026-09-19 bằng script `scripts/
 
 | # | Tên tài liệu | Nguồn (Source URL) | Ngày lấy / Phiên bản | Số ký tự (body) | Metadata đã gán |
 |---|--------------|------------|--------------------|----------|-----------------|
-| 1 | Academic Regulations for Full-Time Undergraduate Programs | https://policy.vinuni.edu.vn/all-policies/academic-regulations-for-full-time-undergraduate-programs/ | 2026-09-19 / VU_HT03.EN | 67 970 | audience=student, department=registrar, category=academic, language=en |
-| 2 | Class Schedule & Course Registration | https://registrar.vinuni.edu.vn/academics/class-schedule-course-registration/ | 2026-09-19 / not-stated | 3 485 | audience=student, department=registrar, category=registration |
-| 3 | Exams & Grades | https://registrar.vinuni.edu.vn/academics/exams-grades/ | 2026-09-19 / not-stated | 1 562 | audience=student, department=registrar, category=grading |
-| 4 | Financial Regulations and Tariff (for student) | https://policy.vinuni.edu.vn/all-policies/financial-regulations-and-tariff-for-student-2/ | 2026-09-19 / VUNI_TS03_Student | 36 008 | audience=student, department=finance, category=tuition |
-| 5 | Library Access & Services Policy | https://policy.vinuni.edu.vn/all-policies/library-policies-for-users/ | 2026-09-19 / POL-LLR-001-V4.0 | 7 261 | audience=all, department=library, category=library |
-| 6 | Residential Life Guideline | https://policy.vinuni.edu.vn/all-policies/residential-life-guideline/ | 2026-09-19 / GDL-SAM-008-V5.0 | 15 392 | audience=student, department=student-affairs, category=residential |
-| 7 | Guidelines on Student Academic Accommodation | https://policy.vinuni.edu.vn/all-policies/guidelines-on-student-academic-accomodation/ | 2026-09-19 / GDL-SAM-010-V1.0 | 11 183 | audience=student, department=student-affairs, category=academic-support |
-| 8 | Student Advising Framework | https://policy.vinuni.edu.vn/all-policies/student-advising-framework/ | 2026-09-19 / FW-SAM-001-V2.0 | 17 153 | audience=student, department=student-affairs, category=advising |
-| 9 | Student Code of Conduct | https://policy.vinuni.edu.vn/all-policies/student-affairs-regulations-code-of-conduct/ | 2026-09-19 / VU_CTSV02.EN | 16 925 | audience=all, department=student-affairs, category=conduct |
-| 10 | Tuition Fee and Financial Aids (AY 2024-2025) | https://admissions.vinuni.edu.vn/tuition-fee-and-financial-support/ | 2026-09-19 / 2024-2025 | 5 271 | audience=student, department=admissions, category=tuition |
+| 1 | Academic Regulations for Full-Time Undergraduate Programs | https://policy.vinuni.edu.vn/all-policies/academic-regulations-for-full-time-undergraduate-programs/ | 2026-09-19 / VU_HT03.EN | 73 956 | audience=student, department=registrar, category=academic, language=en |
+| 2 | Class Schedule & Course Registration | https://registrar.vinuni.edu.vn/academics/class-schedule-course-registration/ | 2026-09-19 / not-stated | 4 468 | audience=student, department=registrar, category=registration, language=en |
+| 3 | Exams & Grades | https://registrar.vinuni.edu.vn/academics/exams-grades/ | 2026-09-19 / not-stated | 2 297 | audience=student, department=registrar, category=grading, language=en |
+| 4 | Financial Regulations and Tariff (for student) | https://policy.vinuni.edu.vn/all-policies/financial-regulations-and-tariff-for-student-2/ | 2026-09-19 / VUNI_TS03_Student | 38 605 | audience=student, department=finance, category=tuition, language=en |
+| 5 | Library Access & Services Policy | https://policy.vinuni.edu.vn/all-policies/library-policies-for-users/ | 2026-09-19 / POL-LLR-001-V4.0 | 10 043 | audience=all, department=library, category=library, language=en |
+| 6 | Residential Life Guideline | https://policy.vinuni.edu.vn/all-policies/residential-life-guideline/ | 2026-09-19 / GDL-SAM-008-V5.0 | 18 504 | audience=student, department=student-affairs, category=residential, language=en |
+| 7 | Guidelines on Student Academic Accommodation | https://policy.vinuni.edu.vn/all-policies/guidelines-on-student-academic-accomodation/ | 2026-09-19 / GDL-SAM-010-V1.0 | 13 622 | audience=student, department=student-affairs, category=academic-support, language=en |
+| 8 | Student Advising Framework | https://policy.vinuni.edu.vn/all-policies/student-advising-framework/ | 2026-09-19 / FW-SAM-001-V2.0 | 19 715 | audience=student, department=student-affairs, category=advising, language=en |
+| 9 | Student Code of Conduct | https://policy.vinuni.edu.vn/all-policies/student-affairs-regulations-code-of-conduct/ | 2026-09-19 / VU_CTSV02.EN | 20 621 | audience=all, department=student-affairs, category=conduct, language=en |
+| 10 | Tuition Fee and Financial Aids (AY 2024-2025) | https://admissions.vinuni.edu.vn/tuition-fee-and-financial-support/ | 2026-09-19 / 2024-2025 | 5 867 | audience=student, department=admissions, category=tuition, language=en |
 
 **Danh sách kiểm tra quản trị dữ liệu (Data governance checklist):**
 - [x] Tập tài liệu (Corpus) chỉ chứa nguồn công khai/được phép dùng và không chứa dữ liệu cá nhân, thông tin đăng nhập hoặc tài liệu nội bộ.
 - [x] Mỗi tài liệu có `source_url`, `retrieved_at`, `document_version` (hoặc ngày hiệu lực) trong metadata.
-- [x] Khai báo đủ trong `data/vinuni-services/sources.csv`, khớp 1-1 với file.
+- [x] Khai báo đủ trong `data/university-policy-crawl/sources.csv`, khớp 1-1 với 10 file `.md`.
 
 ### Cấu trúc Metadata (Metadata Schema)
 
