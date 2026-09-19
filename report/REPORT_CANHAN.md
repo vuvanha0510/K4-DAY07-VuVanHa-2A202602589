@@ -1,7 +1,7 @@
 # Báo Cáo Cá Nhân — Lab 7: Embedding & Vector Store
 
 **Họ tên:** [Vũ Văn Hà]
-**Nhóm:** [Tên nhóm]
+**Nhóm:** [L3A-01]
 **Ngày:** [19/09/2026]
 
 > **Nộp 1 bản / sinh viên.** Phần nhóm (lựa chọn tài liệu, thiết kế chiến lược, bộ câu hỏi đánh giá, demo) nộp chung 1 bản trong `REPORT_NHOM.md`. Chi tiết thang điểm: `docs/SCORING.md`.
@@ -49,23 +49,23 @@ Giải thích cách tiếp cận của bạn khi lập trình (implement) các p
 ### Các hàm chia nhỏ (Chunking Functions)
 
 **`SentenceChunker.chunk`** — hướng tiếp cận:
-> *Viết 2-3 câu: dùng biểu thức chính quy (regex) gì để phát hiện câu? Xử lý trường hợp ngoại lệ (edge case) nào?*
+> Hàm dùng regex `(?<=[.!?])(?:\s+|\n+)` để tách sau dấu chấm, chấm than hoặc chấm hỏi khi theo sau là khoảng trắng hoặc xuống dòng. Các câu được làm sạch khoảng trắng rồi nhóm tối đa theo `max_sentences_per_chunk`; đầu vào rỗng hoặc chỉ có khoảng trắng trả về danh sách rỗng.
 
 **`RecursiveChunker.chunk` / `_split`** — hướng tiếp cận:
-> *Viết 2-3 câu: thuật toán hoạt động thế nào? Base case (trường hợp cơ sở) là gì?*
+> Thuật toán thử các separator theo thứ tự ưu tiên: đoạn văn, dòng, câu, khoảng trắng và cuối cùng là từng ký tự. Base case là đoạn đã nhỏ hơn hoặc bằng `chunk_size`; nếu không còn separator phù hợp, hàm cắt trực tiếp theo kích thước để luôn tạo được chunk hợp lệ.
 
 ### Lớp EmbeddingStore
 
 **`add_documents` + `search`** — hướng tiếp cận:
-> *Viết 2-3 câu: lưu trữ thế nào? Tính độ tương tự ra sao?*
+> Mỗi `Document` được chuyển thành record gồm `id`, `content`, `metadata` và vector embedding, sau đó lưu trong bộ nhớ; nếu ChromaDB khả dụng thì record cũng được thêm vào collection. Khi tìm kiếm, query được embed và so sánh với mọi vector bằng dot product, rồi sắp xếp điểm giảm dần và lấy `top_k` kết quả.
 
 **`search_with_filter` + `delete_document`** — hướng tiếp cận:
-> *Viết 2-3 câu: lọc (filter) trước hay sau? Xóa bằng cách nào?*
+> Metadata được lọc trước bằng điều kiện tất cả cặp khóa-giá trị phải khớp, sau đó chỉ các record còn lại mới được tìm kiếm vector. `delete_document` tạo lại danh sách bằng cách loại bỏ các record có `id` trùng `doc_id`, đồng thời xóa các ID tương ứng trong ChromaDB nếu backend này đang hoạt động.
 
 ### Tác tử KnowledgeBaseAgent
 
 **`answer`** — hướng tiếp cận:
-> *Viết 2-3 câu: cấu trúc prompt? Cách đưa ngữ cảnh (inject context) vào thế nào?*
+> Agent gọi `store.search()` để lấy các chunk liên quan, ghép chúng thành phần `Context` có kèm ID tài liệu, rồi đặt câu hỏi ở cuối prompt. Prompt yêu cầu LLM chỉ dựa vào context và nói rõ khi context không đủ; kết quả trả về chính là chuỗi do `llm_fn` sinh ra.
 
 ---
 
@@ -76,10 +76,10 @@ Vượt qua bộ kiểm thử là điều kiện tính điểm phần này.
 ### Kết Quả Kiểm Thử (Test Results)
 
 ```
-# Dán kết quả (output) của: pytest tests/ -v
+42 passed in 0.19s
 ```
 
-**Số lượng bài test vượt qua (pass):** __ / 42
+**Số lượng bài test vượt qua (pass):** **42 / 42**
 
 ---
 
@@ -87,14 +87,16 @@ Vượt qua bộ kiểm thử là điều kiện tính điểm phần này.
 
 | Cặp | Câu A | Câu B | Dự đoán | Điểm thực tế | Đúng? |
 |------|-----------|-----------|---------|--------------|-------|
-| 1 | | | cao / thấp | | |
-| 2 | | | cao / thấp | | |
-| 3 | | | cao / thấp | | |
-| 4 | | | cao / thấp | | |
-| 5 | | | cao / thấp | | |
+| 1 | What is course registration? | How do I register for a course? | cao | -0.2118 | Không* |
+| 2 | What is course registration? | How do I borrow a library book? | thấp | -0.1386 | Không* |
+| 3 | Scholarship eligibility requirements | Financial aid requirements | cao | -0.3705 | Không* |
+| 4 | Library opening hours | The quick brown fox jumps over the lazy dog | thấp | -0.0168 | Đúng* |
+| 5 | Student withdrawal policy | How can a student drop a class? | cao | -0.1882 | Không* |
+
+\* Điểm được tính bằng `_mock_embed`, là embedder giả lập xác định nhưng không hiểu ngữ nghĩa; vì vậy dấu hiệu cao/thấp của con số không nên được xem là đánh giá chất lượng mô hình ngôn ngữ thực.
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn ý nghĩa?**
-> *Viết 2-3 câu:*
+> Điều bất ngờ nhất là các cặp câu có ý nghĩa gần nhau vẫn có điểm âm và không nhất thiết cao hơn cặp không liên quan. Điều này cho thấy `_mock_embed` chỉ phục vụ kiểm thử tính ổn định của pipeline, không đại diện cho embedding ngữ nghĩa; khi đánh giá retrieval thực tế cần dùng model embedding phù hợp với ngôn ngữ và chủ đề dữ liệu.
 
 ---
 
@@ -104,16 +106,18 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | Sinh viên đăng ký học phần như thế nào? | Dịch vụ thư viện | -0.0595 | Không | Không thể trả lời chắc chắn từ chunk top-1. |
+| 2 | Học phần có thể yêu cầu điều kiện gì? | Dịch vụ thư viện | -0.0521 | Không | Context top-1 không chứa điều kiện học phần. |
+| 3 | Sinh viên xử lý lỗi trùng lịch ra sao? | Đăng ký học phần | 0.0473 | Có | Cần điều chỉnh lớp học phần trước thời hạn được công bố. |
+| 4 | Thư viện cung cấp những dịch vụ nào? | Dịch vụ thư viện | -0.1430 | Có | Thư viện cho mượn tài liệu và cung cấp không gian học tập. |
+| 5 | Cần mang gì khi mượn tài liệu? | Dịch vụ thư viện | 0.1100 | Có | Người dùng cần mang thẻ định danh hợp lệ. |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** __ / 5
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** **3 / 5 (thử nghiệm sơ bộ)**
+
+> Lưu ý: Đây là kết quả chạy trên 2 tài liệu khởi động trong `data/university/`, chưa phải bộ 5 câu hỏi chính thức của nhóm. Bộ crawl 10 URL VinUni chưa tạo được tài liệu vì các URL bị `robots.txt` từ chối.
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
-> *Viết 2-3 câu:*
+> Metadata chỉ hữu ích khi tài liệu được gán nhất quán và có nhiều giá trị để phân biệt, chẳng hạn `student` và `faculty`. Ngoài ra, chất lượng embedding và độ sạch của corpus ảnh hưởng trực tiếp đến top-k, nên không nên đánh giá hệ thống chỉ dựa trên việc code chạy thành công.
 
 ---
 
@@ -121,9 +125,11 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 
 | Tiêu chí | Điểm tự đánh giá |
 |----------|-------------------|
-| Khởi động (Warm-up) | / 5 |
-| Hướng tiếp cận của tôi (My Approach) | / 10 |
-| Hoàn thiện code (Core Implementation — tests) | / 30 |
-| Dự đoán độ tương tự (Similarity Predictions) | / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | / 10 |
-| **Tổng phần cá nhân** | **/ 60** |
+| Khởi động (Warm-up) | 5 / 5 |
+| Hướng tiếp cận của tôi (My Approach) | 10 / 10 |
+| Hoàn thiện code (Core Implementation — tests) | 30 / 30 |
+| Dự đoán độ tương tự (Similarity Predictions) | 3 / 5 |
+| Kết quả truy xuất của tôi (Competition Results) | 6 / 10* |
+| **Tổng phần cá nhân** | **54 / 60** |
+
+\* Điểm tự đánh giá phần retrieval chỉ là sơ bộ vì chưa có corpus nhóm đủ 5 tài liệu và bộ benchmark chính thức.
